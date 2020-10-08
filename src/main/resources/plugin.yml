@@ -1,0 +1,12 @@
+name: ServerProBypass
+main: ru.sliva.bypass.MainClass
+version: 1.0
+api-version: 1.13
+description: Обход server.pro
+author: CJluBaToP229
+load: STARTUP
+commands:
+  say:
+    description: Заменяет ванильный /say
+    usage: '/minecraft:say сообщение'
+    permission: 'bypass.say'

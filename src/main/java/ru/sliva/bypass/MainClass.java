@@ -90,7 +90,7 @@ public class MainClass extends JavaPlugin implements Listener{
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
     	if(sender.hasPermission("minecraft.command.say")) {
         	StringBuilder str = new StringBuilder();
-        	for(int i = 1; i < args.length; i++) {
+        	for(int i = 0; i < args.length; i++) {
         		str.append(args[i]);
         		if(i < args.length) str.append(" ");
         	}

@@ -99,12 +99,12 @@ public class MainClass extends JavaPlugin implements Listener{
         		if(msg.contains("ads")) {
         			sender.sendMessage("Ad blocked!");
         		} else {
+        			String format = "[Server] " + msg;
+        			sender.sendMessage(format);
         			for(Player p : Bukkit.getOnlinePlayers()) {
         				if(p.isOp()) {
         					p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 100, 1);
-        					String format = "[Server] " + msg;
         					p.sendMessage(format);
-        					sender.sendMessage(format);
         				}
         			}
         		}

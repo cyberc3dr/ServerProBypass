@@ -102,7 +102,9 @@ public class MainClass extends JavaPlugin implements Listener{
         			for(Player p : Bukkit.getOnlinePlayers()) {
         				if(p.isOp()) {
         					p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 100, 1);
-        					p.sendMessage("[Server] " + msg);
+        					String format = "[Server] " + msg;
+        					p.sendMessage(format);
+        					sender.sendMessage(format);
         				}
         			}
         		}

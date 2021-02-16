@@ -8,5 +8,4 @@ load: STARTUP
 commands:
   say:
     description: Заменяет ванильный /say
-    usage: '/minecraft:say сообщение'
-    permission: 'bypass.say'
+    usage: '/say сообщение'

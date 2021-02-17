@@ -1,4 +1,4 @@
-# ServerProBypass
+# ServerProBypass [![](https://jitpack.io/v/Geo3gamer/ServerProBypass.svg)](https://jitpack.io/#Geo3gamer/ServerProBypass)
 Удалить рекламу, и добавить возможность загрузки плагинов на server.pro
 
 ## config.yml

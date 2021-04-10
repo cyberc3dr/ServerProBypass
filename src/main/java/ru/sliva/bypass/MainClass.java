@@ -92,7 +92,7 @@ public class MainClass extends JavaPlugin implements Listener{
         	StringBuilder str = new StringBuilder();
         	for(int i = 0; i < args.length; i++) {
         		str.append(args[i]);
-        		if(i < args.length) str.append(" ");
+        		if(i < args.length - 1) str.append(" ");
         	}
         	String msg = str.toString();
         	if(sender instanceof ConsoleCommandSender) {

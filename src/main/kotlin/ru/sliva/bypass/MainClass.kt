@@ -55,7 +55,7 @@ class MainClass : JavaPlugin(), Listener {
             pluginFolder.mkdirs()
         }
         if (pluginFolder.exists()) {
-            val plugins = pluginManager.loadPlugins(pluginFolder)
+            plugins = pluginManager.loadPlugins(pluginFolder)
             for (plugin in plugins) {
                 try {
                     val message = String.format("Loading %s", plugin.description.fullName)

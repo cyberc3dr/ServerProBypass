@@ -1,2 +1,4 @@
-motd: '&9Default-motd /n&9Change in &7plugins/ServerProBypass/config.yml'
+motd:
+  - "&9Default-motd"
+  - "&9Change in &7plugins/ServerProBypass/config.yml"
 unlimited-slots: true

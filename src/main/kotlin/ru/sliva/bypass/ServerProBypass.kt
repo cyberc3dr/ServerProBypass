@@ -1,7 +1,8 @@
 package ru.sliva.bypass
 
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.Bukkit
-import org.bukkit.ChatColor
 import org.bukkit.Sound
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
@@ -11,19 +12,17 @@ import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerLoginEvent
 import org.bukkit.event.server.ServerListPingEvent
-import org.bukkit.permissions.Permission
 import org.bukkit.plugin.Plugin
 import org.bukkit.plugin.PluginLoadOrder
-import org.bukkit.plugin.SimplePluginManager
 import org.bukkit.plugin.java.JavaPlugin
 import java.io.File
 import java.util.logging.Level
 
 
-class MainClass : JavaPlugin(), Listener {
+object ServerProBypass : JavaPlugin(), Listener {
 
     private lateinit var plugins: Array<Plugin>
-    private var pluginManager = Bukkit.getPluginManager() as SimplePluginManager
+    private var pluginManager = Bukkit.getPluginManager()
 
     override fun onLoad() {
         dataFolder.mkdirs()
@@ -53,26 +52,22 @@ class MainClass : JavaPlugin(), Listener {
         if (!pluginFolder.exists()) {
             logger.warning("Plugins folder not found! Making a new one...")
             pluginFolder.mkdirs()
-        }
-        if (pluginFolder.exists()) {
+        } else {
             plugins = pluginManager.loadPlugins(pluginFolder)
-            for (plugin in plugins) {
+            plugins.forEach {
                 try {
-                    val message = String.format("Loading %s", plugin.description.fullName)
-                    plugin.logger.info(message)
-                    plugin.onLoad()
+                    it.logger.info("Loading ${it.pluginMeta.displayName}")
+                    it.onLoad()
                 } catch (ex: Throwable) {
-                    logger.log(Level.SEVERE, ex.message + " initializing " + plugin.description.fullName + " (Is it up to date?)", ex)
+                    logger.log(Level.SEVERE, "${ex.message} initializing ${it.pluginMeta.displayName} (Is it up to date?)", ex)
                 }
             }
-        } else {
-            pluginFolder.mkdir()
         }
     }
 
     private fun enablePlugins(type : PluginLoadOrder) {
         for (plugin in plugins) {
-            if (!plugin.isEnabled && plugin.description.load == type) {
+            if (!plugin.isEnabled && plugin.pluginMeta.loadOrder == type) {
                 enablePlugin(plugin)
             }
         }
@@ -80,24 +75,22 @@ class MainClass : JavaPlugin(), Listener {
 
     private fun enablePlugin(plugin: Plugin) {
         try {
-            val perms: List<Permission> = plugin.description.permissions
-            for (perm in perms) {
+            plugin.pluginMeta.permissions.forEach {
                 try {
-                    pluginManager.addPermission(perm, false)
+                    pluginManager.addPermission(it)
                 } catch (ex: IllegalArgumentException) {
-                    logger.log(Level.WARNING, "Plugin " + plugin.description.fullName + " tried to register permission '" + perm.name + "' but it's already registered", ex)
+                    logger.log(Level.WARNING, "Plugin ${plugin.pluginMeta.displayName} tried to register permission '${it.name}' but it's already registered", ex)
                 }
             }
-            pluginManager.dirtyPermissibles()
             pluginManager.enablePlugin(plugin)
         } catch (ex: Throwable) {
-            logger.log(Level.SEVERE, ex.message + " loading " + plugin.description.fullName + " (Is it up to date?)", ex)
+            logger.log(Level.SEVERE, "${ex.message} loading ${plugin.pluginMeta.displayName} (Is it up to date?)", ex)
         }
     }
 
-    fun disablePlugins() {
+    private fun disablePlugins() {
         for(plugin in plugins) {
-            pluginManager.disablePlugin(plugin, true)
+            pluginManager.disablePlugin(plugin)
         }
     }
 
@@ -107,17 +100,12 @@ class MainClass : JavaPlugin(), Listener {
 
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<String>): Boolean {
         if (sender.hasPermission("minecraft.command.say")) {
-            val str = StringBuilder()
-            for (i in args.indices) {
-                str.append(args[i])
-                if (i < args.size - 1) str.append(" ")
-            }
-            val msg = str.toString()
+            val msg = args.copyOfRange(1, args.size - 1).joinToString(" ")
+
             if (sender is ConsoleCommandSender) {
                 if (msg.contains("ads")) {
-                    sender.sendMessage("Ad blocked!")
+                    logger.info("Ad blocked!")
                 } else {
-                    val format = "[Server] $msg"
                     for (p in Bukkit.getOnlinePlayers()) {
                         if (p.isOp) {
                             val ver = Bukkit.getVersion().split("\\.".toRegex()).toTypedArray()[1].toInt()
@@ -127,7 +115,7 @@ class MainClass : JavaPlugin(), Listener {
                                 Sound.valueOf("BLOCK_NOTE_BLOCK_PLING")
                             }
                             p.playSound(p.location, sound, 100f, 1f)
-                            p.sendMessage(format)
+                            p.sendMessage(Component.text("[Server] $msg", NamedTextColor.WHITE))
                         }
                     }
                 }
@@ -135,7 +123,7 @@ class MainClass : JavaPlugin(), Listener {
             }
             Bukkit.dispatchCommand(sender, "minecraft:say $msg")
         } else {
-            sender.sendMessage("§cSorry, you don`t have permission to perform this command.")
+            sender.sendMessage(Component.text("Sorry, you don`t have permission to perform this command.", NamedTextColor.RED))
         }
         return true
     }
@@ -154,6 +142,6 @@ class MainClass : JavaPlugin(), Listener {
         if (config.getBoolean("unlimited-slots")) {
             e.maxPlayers = e.numPlayers + 1
         }
-        e.motd = ChatColor.translateAlternateColorCodes('&', config!!.getString("motd").replace("/n", "\n"))
+        config.getList("motd")?.let { Component.text(it.joinToString(" "), NamedTextColor.WHITE) }?.let { e.motd(it) }
     }
 }

@@ -1,11 +1,11 @@
-name: ServerProBypass
-main: ru.sliva.bypass.MainClass
-version: 1.3.1
-api-version: 1.13
-description: Обход server.pro
+name: "${name}"
+main: ru.sliva.bypass.ServerProBypass
+version: "${version}"
+api-version: 1.19
+description: "${description}"
 author: sliva
 load: STARTUP
 commands:
   say:
-    description: Заменяет ванильный /say
-    usage: '/say сообщение'
+    description: "Replaces vanilla /say command"
+    usage: '/say <msg>'

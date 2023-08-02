@@ -1,1 +1,1 @@
-rootProject.name = "serverprobypass"
+rootProject.name = "ServerProBypass"

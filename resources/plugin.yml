@@ -1,12 +1,12 @@
-name: "${name}"
+name: ServerProBypass
 main: ru.sliva.bypass.ServerProBypass
 version: "${version}"
-api-version: 1.19
-description: "${description}"
-author: sliva
+api-version: '${apiVersion}'
+author: 'sliva_ru'
+description: '${description}'
 load: STARTUP
 libraries:
-  - "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.0"
+  - "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.21"
 commands:
   say:
     description: "Replaces vanilla /say command"

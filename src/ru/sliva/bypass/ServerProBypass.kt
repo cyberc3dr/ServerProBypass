@@ -1,7 +1,9 @@
 package ru.sliva.bypass
 
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.JoinConfiguration
 import net.kyori.adventure.text.format.NamedTextColor
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import org.bukkit.Bukkit
 import org.bukkit.Sound
 import org.bukkit.command.Command
@@ -18,8 +20,7 @@ import org.bukkit.plugin.java.JavaPlugin
 import java.io.File
 import java.util.logging.Level
 
-
-object ServerProBypass : JavaPlugin(), Listener {
+class ServerProBypass : JavaPlugin(), Listener {
 
     private lateinit var plugins: Array<Plugin>
     private var pluginManager = Bukkit.getPluginManager()
@@ -49,11 +50,13 @@ object ServerProBypass : JavaPlugin(), Listener {
 
     private fun loadPlugins() {
         val pluginFolder = File(dataFolder, "plugins")
+
         if (!pluginFolder.exists()) {
             logger.warning("Plugins folder not found! Making a new one...")
             pluginFolder.mkdirs()
         } else {
             plugins = pluginManager.loadPlugins(pluginFolder)
+
             plugins.forEach {
                 try {
                     it.logger.info("Loading ${it.pluginMeta.displayName}")
@@ -89,9 +92,7 @@ object ServerProBypass : JavaPlugin(), Listener {
     }
 
     private fun disablePlugins() {
-        for(plugin in plugins) {
-            pluginManager.disablePlugin(plugin)
-        }
+        plugins.forEach { pluginManager.disablePlugin(it) }
     }
 
     override fun onTabComplete(sender: CommandSender, command: Command, alias: String, args: Array<String>): List<String> {
@@ -106,16 +107,16 @@ object ServerProBypass : JavaPlugin(), Listener {
                 if (msg.contains("ads")) {
                     logger.info("Ad blocked!")
                 } else {
-                    for (p in Bukkit.getOnlinePlayers()) {
-                        if (p.isOp) {
+                    Bukkit.getOnlinePlayers().filterNotNull().forEach {
+                        if (it.isOp) {
                             val ver = Bukkit.getVersion().split("\\.".toRegex()).toTypedArray()[1].toInt()
                             val sound = if (ver < 13) {
                                 Sound.valueOf("BLOCK_NOTE_PLING")
                             } else {
                                 Sound.valueOf("BLOCK_NOTE_BLOCK_PLING")
                             }
-                            p.playSound(p.location, sound, 100f, 1f)
-                            p.sendMessage(Component.text("[Server] $msg", NamedTextColor.WHITE))
+                            it.playSound(it.location, sound, 100f, 1f)
+                            it.sendMessage(Component.text("[Server] $msg", NamedTextColor.WHITE))
                         }
                     }
                 }
@@ -142,6 +143,10 @@ object ServerProBypass : JavaPlugin(), Listener {
         if (config.getBoolean("unlimited-slots")) {
             e.maxPlayers = e.numPlayers + 1
         }
-        config.getList("motd")?.let { Component.text(it.joinToString(" "), NamedTextColor.WHITE) }?.let { e.motd(it) }
+        e.motd(
+            config.getStringList("motd")
+                .map { LegacyComponentSerializer.legacyAmpersand().deserialize(it) }
+                .let { Component.join(JoinConfiguration.newlines(), it) }
+        )
     }
 }
